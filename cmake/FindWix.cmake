@@ -30,7 +30,7 @@ message(STATUS "WIX_ROOT: " ${WIX_ROOT})
 unset(${WIX_LATEST_FILE})
 
 function(wix_add_project _target)
-    cmake_parse_arguments(WIX "" "OUTPUT_NAME" "EXTENSIONS;DEPENDS" ${ARGN})
+    cmake_parse_arguments(WIX "ALL" "OUTPUT_NAME" "EXTENSIONS;DEPENDS" ${ARGN})
 
     if("${WIX_OUTPUT_NAME}" STREQUAL "")
         set(WIX_OUTPUT_NAME "${_target}.msi")
@@ -67,10 +67,17 @@ function(wix_add_project _target)
         COMMENT "Linking to ${WIX_OUTPUT_NAME} file"
         )
 
-    add_custom_target(${_target} ALL
-        DEPENDS ${WIX_OUTPUT_NAME}
-        SOURCES ${WIX_UNPARSED_ARGUMENTS}
-        )
+    if(${WIX_ALL})
+        add_custom_target(${_target} ALL
+            DEPENDS ${WIX_OUTPUT_NAME}
+            SOURCES ${WIX_UNPARSED_ARGUMENTS}
+            )
+    else()
+        add_custom_target(${_target}
+            DEPENDS ${WIX_OUTPUT_NAME}
+            SOURCES ${WIX_UNPARSED_ARGUMENTS}
+            )
+    endif()
 
     get_cmake_property(WIX_variableNames VARIABLES)
     list(REMOVE_DUPLICATES WIX_variableNames)
