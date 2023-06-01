@@ -54,7 +54,7 @@ function(wix_add_project _target)
     # Call WiX compiler
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${WIXOBJ_LIST}
-        COMMAND "${WIX_ROOT}/bin/candle.exe" -nologo -arch ${WIX_ARCH} ${WIX_COMPILE_FLAGS} -o "${CMAKE_CURRENT_BINARY_DIR}/" ${WIX_SOURCES_LIST} -I"${CMAKE_CURRENT_BINARY_DIR}" -I"${CMAKE_CURRENT_BINARY_DIR}/wxi/$<CONFIG>"
+        COMMAND "${WIX_ROOT}/bin/candle.exe" -nologo -arch ${WIX_ARCH} ${WIX_COMPILE_FLAGS} -o "${CMAKE_CURRENT_BINARY_DIR}/" ${WIX_SOURCES_LIST} -I"${CMAKE_CURRENT_BINARY_DIR}" -I"${CMAKE_CURRENT_BINARY_DIR}/wxi/$<CONFIG>" ${EXTENSION_LIST}
         DEPENDS ${WIX_SOURCES_LIST}
         COMMENT "Compiling to wixobj file(s)"
         )
