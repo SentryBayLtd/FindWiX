@@ -54,7 +54,7 @@ function(wix_add_project _target)
     # Call WiX compiler
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${WIXOBJ_LIST}
-        COMMAND "${WIX_ROOT}/bin/candle.exe" -arch ${WIX_ARCH} ${WIX_COMPILE_FLAGS} -o "${CMAKE_CURRENT_BINARY_DIR}/" ${WIX_SOURCES_LIST} -I"${CMAKE_CURRENT_BINARY_DIR}" -I"${CMAKE_CURRENT_BINARY_DIR}/wxi/$<CONFIG>"
+        COMMAND "${WIX_ROOT}/bin/candle.exe" -nologo -arch ${WIX_ARCH} ${WIX_COMPILE_FLAGS} -o "${CMAKE_CURRENT_BINARY_DIR}/" ${WIX_SOURCES_LIST} -I"${CMAKE_CURRENT_BINARY_DIR}" -I"${CMAKE_CURRENT_BINARY_DIR}/wxi/$<CONFIG>"
         DEPENDS ${WIX_SOURCES_LIST}
         COMMENT "Compiling to wixobj file(s)"
         )
@@ -62,7 +62,7 @@ function(wix_add_project _target)
     # Link MSI file
     add_custom_command(
         OUTPUT ${WIX_OUTPUT_NAME}
-        COMMAND "${WIX_ROOT}/bin/light.exe" ${WIX_LINK_FLAGS} -o ${WIX_OUTPUT_NAME} ${WIXOBJ_LIST} ${EXTENSION_LIST}
+        COMMAND "${WIX_ROOT}/bin/light.exe" -nologo ${WIX_LINK_FLAGS} -o ${WIX_OUTPUT_NAME} ${WIXOBJ_LIST} ${EXTENSION_LIST}
         DEPENDS ${WIXOBJ_LIST} ${WIX_DEPENDS}
         COMMENT "Linking to ${WIX_OUTPUT_NAME} file"
         )
