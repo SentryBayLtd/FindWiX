@@ -30,7 +30,7 @@ message(STATUS "WIX_ROOT: " ${WIX_ROOT})
 unset(${WIX_LATEST_FILE})
 
 function(wix_add_project _target)
-    cmake_parse_arguments(WIX "ALL" "OUTPUT_NAME" "EXTENSIONS;DEPENDS" ${ARGN})
+    cmake_parse_arguments(WIX "ALL" "OUTPUT_NAME" "EXTENSIONS;DEPENDS;LIBS" ${ARGN})
 
     if("${WIX_OUTPUT_NAME}" STREQUAL "")
         set(WIX_OUTPUT_NAME "${_target}.msi")
@@ -62,7 +62,7 @@ function(wix_add_project _target)
     # Link MSI file
     add_custom_command(
         OUTPUT ${WIX_OUTPUT_NAME}
-        COMMAND "${WIX_ROOT}/bin/light.exe" -nologo ${WIX_LINK_FLAGS} -o ${WIX_OUTPUT_NAME} ${WIXOBJ_LIST} ${EXTENSION_LIST}
+        COMMAND "${WIX_ROOT}/bin/light.exe" -nologo ${WIX_LINK_FLAGS} -o ${WIX_OUTPUT_NAME} ${WIXOBJ_LIST} ${WIX_LIBS} ${EXTENSION_LIST}
         DEPENDS ${WIXOBJ_LIST} ${WIX_DEPENDS}
         COMMENT "Linking to ${WIX_OUTPUT_NAME} file"
         )
