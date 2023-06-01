@@ -54,7 +54,7 @@ function(wix_add_project _target)
     # Call WiX compiler
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${WIXOBJ_LIST}
-        COMMAND "${WIX_ROOT}/bin/candle.exe" -nologo -arch ${WIX_ARCH} ${WIX_COMPILE_FLAGS} -o "${CMAKE_CURRENT_BINARY_DIR}/" ${WIX_SOURCES_LIST} -I"${CMAKE_CURRENT_BINARY_DIR}" -I"${CMAKE_CURRENT_BINARY_DIR}/wxi/$<CONFIG>" ${EXTENSION_LIST}
+        COMMAND "${WIX_ROOT}/bin/candle.exe" -nologo -arch ${WIX_ARCH} ${WIX_COMPILE_FLAGS} -o "${CMAKE_CURRENT_BINARY_DIR}/" ${WIX_SOURCES_LIST} -I"${CMAKE_CURRENT_BINARY_DIR}" -I"${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>" ${EXTENSION_LIST}
         DEPENDS ${WIX_SOURCES_LIST}
         COMMENT "Compiling to wixobj file(s)"
         )
@@ -90,7 +90,7 @@ function(wix_add_project _target)
         string(CONCAT VARS_FILE ${VARS_FILE} "\t<?define ${OUT} ?>\n")
     endforeach()
     string(CONCAT VARS_FILE ${VARS_FILE} "</Include>")
-    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wxi/$<CONFIG>/vars.wxi" CONTENT "${VARS_FILE}")
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>/vars.wxi" CONTENT "${VARS_FILE}")
 
     string(CONCAT DEPENDS_FILE "<?xml version='1.0' encoding='UTF-8'?>\n\n<Include>\n")
     foreach(current_depends ${WIX_DEPENDS})
@@ -99,5 +99,5 @@ function(wix_add_project _target)
         string(CONCAT DEPENDS_FILE ${DEPENDS_FILE} "\t<?define TARGET_PDB_FILE:${current_depends}='$<$<STREQUAL:$<TARGET_PROPERTY:${current_depends},VS_DOTNET_REFERENCES>,>:$<TARGET_PDB_FILE:${current_depends}>>' ?>\n")
     endforeach()
     string(CONCAT DEPENDS_FILE ${DEPENDS_FILE} "</Include>")
-    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wxi/$<CONFIG>/depends.wxi" CONTENT "${DEPENDS_FILE}")
+    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>/depends.wxi" CONTENT "${DEPENDS_FILE}")
 endfunction()
