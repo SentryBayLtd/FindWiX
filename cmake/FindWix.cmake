@@ -7,27 +7,7 @@ else()
     set(WIX_ARCH "x86")
 endif()
 
-file(GLOB WIX_FILES
-    "C:/Program Files*/WiX Toolset v*/bin"
-)
-
-if(WIX_FILES)
-    list(GET WIX_FILES -1 WIX_LATEST_FILE)
-endif()
-
-unset(${WIX_FILES})
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(WIX REQUIRED_VARS WIX_LATEST_FILE)
-
-if(NOT WIX_LATEST_FILE)
-    return()
-endif()
-
-get_filename_component(WIX_ROOT ${WIX_LATEST_FILE} DIRECTORY)
-message(STATUS "WIX_ROOT: " ${WIX_ROOT})
-
-unset(${WIX_LATEST_FILE})
+find_program(WIX wix REQUIRED)
 
 function(wix_add_project _target)
     cmake_parse_arguments(WIX "ALL" "OUTPUT_NAME" "EXTENSIONS;DEPENDS;LIBS" ${ARGN})
@@ -36,13 +16,12 @@ function(wix_add_project _target)
         set(WIX_OUTPUT_NAME "${_target}.msi")
     endif()
 
-    if(NOT ("${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" STREQUAL ""))
-        set(WIX_OUTPUT_NAME ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${WIX_OUTPUT_NAME})
-    endif()
+    #    if(NOT IS_ABSOLUTE ${WIX_OUTPUT_NAME})
+      cmake_path(ABSOLUTE_PATH WIX_OUTPUT_NAME BASE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+      #endif()
 
     foreach(currentFILE ${WIX_UNPARSED_ARGUMENTS})
         GET_FILENAME_COMPONENT(SOURCE_FILE_NAME ${currentFILE} NAME_WE)
-        list(APPEND WIXOBJ_LIST "${SOURCE_FILE_NAME}.wixobj")
         list(APPEND WIX_SOURCES_LIST ${CMAKE_CURRENT_LIST_DIR}/${currentFILE})
     endforeach()
 
@@ -53,18 +32,9 @@ function(wix_add_project _target)
 
     # Call WiX compiler
     add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${WIXOBJ_LIST}
-        COMMAND "${WIX_ROOT}/bin/candle.exe" -nologo -arch ${WIX_ARCH} ${WIX_COMPILE_FLAGS} -o "${CMAKE_CURRENT_BINARY_DIR}/" ${WIX_SOURCES_LIST} -I"${CMAKE_CURRENT_BINARY_DIR}" -I"${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>" ${EXTENSION_LIST}
-        DEPENDS ${WIX_SOURCES_LIST}
-        COMMENT "Compiling to wixobj file(s)"
-        )
-
-    # Link MSI file
-    add_custom_command(
         OUTPUT ${WIX_OUTPUT_NAME}
-        COMMAND "${WIX_ROOT}/bin/light.exe" -nologo ${WIX_LINK_FLAGS} -o ${WIX_OUTPUT_NAME} ${WIXOBJ_LIST} ${WIX_LIBS} ${EXTENSION_LIST}
-        DEPENDS ${WIXOBJ_LIST} ${WIX_DEPENDS}
-        COMMENT "Linking to ${WIX_OUTPUT_NAME} file"
+        COMMAND wix build --nologo -arch ${WIX_ARCH} ${WIX_FLAGS} -o "${WIX_OUTPUT_NAME}" ${WIX_SOURCES_LIST} -i "${CMAKE_CURRENT_BINARY_DIR}" -i "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>" ${EXTENSION_LIST}
+        DEPENDS ${WIX_SOURCES_LIST} ${WIX_DEPENDS}
         )
 
     if(${WIX_ALL})
@@ -82,7 +52,7 @@ function(wix_add_project _target)
     get_cmake_property(WIX_variableNames VARIABLES)
     list(REMOVE_DUPLICATES WIX_variableNames)
     list(REMOVE_ITEM WIX_variableNames "CMAKE_BUILD_TYPE")
-    string(CONCAT VARS_FILE "<?xml version='1.0' encoding='UTF-8'?>\n\n<Include>\n")
+    string(CONCAT VARS_FILE "<Include>\n")
     # handle CMAKE_BUILD_TYPE in a special way to support multiconfiguration generators
     string(CONCAT VARS_FILE ${VARS_FILE} "\t<?define CMAKE_BUILD_TYPE='$<CONFIG>' ?>\n")
     foreach(WIX_variableName ${WIX_variableNames})
@@ -92,7 +62,7 @@ function(wix_add_project _target)
     string(CONCAT VARS_FILE ${VARS_FILE} "</Include>")
     file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>/vars.wxi" CONTENT "${VARS_FILE}")
 
-    string(CONCAT DEPENDS_FILE "<?xml version='1.0' encoding='UTF-8'?>\n\n<Include>\n")
+    string(CONCAT DEPENDS_FILE "<Include>\n")
     foreach(current_depends ${WIX_DEPENDS})
         if (TARGET ${current_depends})
           string(CONCAT DEPENDS_FILE ${DEPENDS_FILE} "\t<?define TARGET_FILE:${current_depends}='$<TARGET_FILE:${current_depends}>' ?>\n")
