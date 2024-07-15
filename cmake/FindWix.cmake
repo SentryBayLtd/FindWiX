@@ -33,7 +33,7 @@ function(wix_add_project _target)
     # Call WiX compiler
     add_custom_command(
         OUTPUT ${WIX_OUTPUT_NAME}
-        COMMAND wix build --nologo -arch ${WIX_ARCH} ${WIX_FLAGS} -o "${WIX_OUTPUT_NAME}" ${WIX_SOURCES_LIST} -i "${CMAKE_CURRENT_BINARY_DIR}" -i "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>" ${EXTENSION_LIST}
+        COMMAND ${WIX} build --nologo -arch ${WIX_ARCH} ${WIX_FLAGS} -o "${WIX_OUTPUT_NAME}" ${WIX_SOURCES_LIST} -i "${CMAKE_CURRENT_BINARY_DIR}" -i "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>" ${EXTENSION_LIST}
         DEPENDS ${WIX_SOURCES_LIST} ${WIX_DEPENDS}
         )
 
