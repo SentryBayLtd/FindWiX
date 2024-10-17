@@ -1,11 +1,7 @@
 # Redistribution and use is allowed under the OSI-approved 3-clause BSD license.
 # Copyright (c) 2018 Apriorit Inc. All rights reserved.
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(WIX_ARCH "x64")
-else()
-    set(WIX_ARCH "x86")
-endif()
+set(WIX_ARCH ${CMAKE_CXX_COMPILER_ARCHITECTURE_ID})
 
 find_program(WIX wix REQUIRED)
 
