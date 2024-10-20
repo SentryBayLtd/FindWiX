@@ -1,15 +1,17 @@
 # Redistribution and use is allowed under the OSI-approved 3-clause BSD license.
 # Copyright (c) 2018 Apriorit Inc. All rights reserved.
 
-set(WIX_ARCH ${CMAKE_CXX_COMPILER_ARCHITECTURE_ID})
-
 find_program(WIX wix REQUIRED)
 
 function(wix_add_project _target)
-    cmake_parse_arguments(WIX "ALL" "OUTPUT_NAME" "EXTENSIONS;DEPENDS;LIBS" ${ARGN})
+    cmake_parse_arguments(WIX "ALL" "OUTPUT_NAME;ARCH" "EXTENSIONS;DEPENDS;LIBS" ${ARGN})
 
     if("${WIX_OUTPUT_NAME}" STREQUAL "")
         set(WIX_OUTPUT_NAME "${_target}.msi")
+    endif()
+
+    if ("${WIX_ARCH}" STREQUAL "")
+        set(WIX_ARCH ${CMAKE_CXX_COMPILER_ARCHITECTURE_ID})
     endif()
 
     #    if(NOT IS_ABSOLUTE ${WIX_OUTPUT_NAME})
