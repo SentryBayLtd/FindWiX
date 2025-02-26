@@ -9,6 +9,9 @@ function(wix_add_project _target)
     if("${WIX_OUTPUT_NAME}" STREQUAL "")
         set(WIX_OUTPUT_NAME "${_target}.msi")
     endif()
+    get_filename_component(WIX_OUTPUT_DIR "${WIX_OUTPUT_NAME}" DIRECTORY)
+    get_filename_component(WIX_OUTPUT_BASENAME "${WIX_OUTPUT_NAME}" NAME_WE)
+    set(WIX_PDB_OUTPUT_NAME "${WIX_OUTPUT_DIR}/${WIX_OUTPUT_BASENAME}.wixpdb")
 
     if ("${WIX_ARCH}" STREQUAL "")
         set(WIX_ARCH ${CMAKE_CXX_COMPILER_ARCHITECTURE_ID})
@@ -30,10 +33,14 @@ function(wix_add_project _target)
 
     # Call WiX compiler
     add_custom_command(
-        OUTPUT ${WIX_OUTPUT_NAME}
-        COMMAND ${WIX} build --nologo -arch ${WIX_ARCH} ${WIX_FLAGS} -o "${WIX_OUTPUT_NAME}" ${WIX_SOURCES_LIST} -i "${CMAKE_CURRENT_BINARY_DIR}" -i "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>" ${EXTENSION_LIST}
-        DEPENDS ${WIX_SOURCES_LIST} ${WIX_DEPENDS}
-        )
+      OUTPUT
+        ${WIX_OUTPUT_NAME}
+        ${WIX_PDB_OUTPUT_NAME}
+      COMMAND
+        ${WIX} build --nologo -arch ${WIX_ARCH} ${WIX_FLAGS} -o "${WIX_OUTPUT_NAME}" ${WIX_SOURCES_LIST} -i "${CMAKE_CURRENT_BINARY_DIR}" -i "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>" ${EXTENSION_LIST}
+      DEPENDS
+        ${WIX_SOURCES_LIST} ${WIX_DEPENDS}
+    )
 
     if(${WIX_ALL})
         add_custom_target(${_target} ALL
