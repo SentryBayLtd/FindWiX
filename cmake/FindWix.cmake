@@ -22,8 +22,8 @@ function(wix_add_project _target)
       #endif()
 
     foreach(currentFILE ${WIX_UNPARSED_ARGUMENTS})
-        GET_FILENAME_COMPONENT(SOURCE_FILE_NAME ${currentFILE} NAME_WE)
-        list(APPEND WIX_SOURCES_LIST ${CMAKE_CURRENT_LIST_DIR}/${currentFILE})
+        cmake_path(ABSOLUTE_PATH currentFILE BASE_DIRECTORY ${CMAKE_CURRENT_LIST_DIR} NORMALIZE OUTPUT_VARIABLE currentFILE)
+        list(APPEND WIX_SOURCES_LIST "${currentFILE}")
     endforeach()
 
     foreach(current_WIX_EXTENSION ${WIX_EXTENSIONS})
@@ -53,19 +53,6 @@ function(wix_add_project _target)
             SOURCES ${WIX_UNPARSED_ARGUMENTS}
             )
     endif()
-
-    get_cmake_property(WIX_variableNames VARIABLES)
-    list(REMOVE_DUPLICATES WIX_variableNames)
-    list(REMOVE_ITEM WIX_variableNames "CMAKE_BUILD_TYPE")
-    string(CONCAT VARS_FILE "<Include>\n")
-    # handle CMAKE_BUILD_TYPE in a special way to support multiconfiguration generators
-    string(CONCAT VARS_FILE ${VARS_FILE} "\t<?define CMAKE_BUILD_TYPE='$<CONFIG>' ?>\n")
-    foreach(WIX_variableName ${WIX_variableNames})
-        string(REPLACE "'" "&quot;" WIX_variableValue "${${WIX_variableName}}")
-        string(CONCAT VARS_FILE ${VARS_FILE} "\t<?define ${WIX_variableName}='${WIX_variableValue}' ?>\n")
-    endforeach()
-    string(CONCAT VARS_FILE ${VARS_FILE} "</Include>")
-    file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wxi/${_target}/$<CONFIG>/vars.wxi" CONTENT "${VARS_FILE}")
 
     string(CONCAT DEPENDS_FILE "<Include>\n")
     foreach(current_depends ${WIX_DEPENDS})
